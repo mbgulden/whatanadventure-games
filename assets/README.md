@@ -12,3 +12,6 @@ When found, place files here:
 - `logo-dark.png` — dark background variant
 - `favicon.ico` — site favicon
 - `brand-guide.md` — colors, fonts, usage guidelines
+
+**Note:** Landing page (`index.html`) uses a text-based ASCII logo as placeholder.
+Update once assets are available.

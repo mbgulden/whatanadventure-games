@@ -1,0 +1,3 @@
+# Cloudflare Pages redirects
+# Root serves the landing page — all routes handled by SPA-style navigation
+/* /index.html 200
