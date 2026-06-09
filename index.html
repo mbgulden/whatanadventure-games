@@ -556,31 +556,12 @@
     <section id="games">
         <h2 class="section-title">Game Portfolio</h2>
 
-        <div class="game-grid">
-            <div class="game-card">
-                <div class="badge">First Title</div>
-                <h3>DARIUS STAR: CYBER COELACANTH</h3>
-                <div class="subtitle">A horizontal retro shoot-'em-up for the modern age</div>
-                <p>
-                    Pilot the <em>Darius Star</em> through neon-drenched cyberpunk oceans.
-                    Battle biomechanical monstrosities, upgrade your weapons, and survive
-                    wave after wave of escalating chaos. Built with pure HTML5 Canvas —
-                    no plugins, no downloads, just open your browser and play.
-                </p>
-                <div class="tags">
-                    <span class="tag">Shoot-'em-up</span>
-                    <span class="tag">Cyberpunk</span>
-                    <span class="tag">16-bit</span>
-                    <span class="tag">HTML5 Canvas</span>
-                    <span class="tag">Single Player</span>
-                </div>
-                <a href="#play" class="btn btn-primary">▶ Play Now</a>
-                <a href="https://github.com/mbgulden/darius-star" target="_blank" rel="noopener" class="btn">View Source</a>
-            </div>
+        <div class="game-grid" id="game-grid">
+            <!-- Games loaded dynamically from games.json -->
         </div>
 
-        <!-- Future games placeholder -->
-        <div style="text-align: center; margin-top: 2rem; padding: 2rem; border: 1px dashed rgba(255, 0, 85, 0.3); border-radius: 8px;">
+        <!-- Future games placeholder (shown when no games beyond first) -->
+        <div id="future-games" style="text-align: center; margin-top: 2rem; padding: 2rem; border: 1px dashed rgba(255, 0, 85, 0.3); border-radius: 8px;">
             <div style="color: var(--pink); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase;">Coming Soon</div>
             <div style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.5rem;">More titles in the pipeline — stay tuned</div>
         </div>
@@ -687,5 +668,72 @@
 
     <!-- Scanline noise (additional layer for authenticity) -->
     <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9997; mix-blend-mode: overlay; background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,255,255,0.015) 3px, rgba(0,255,255,0.015) 4px);"></div>
+
+    <script>
+        // Dynamic game portfolio — loads from games.json
+        (async function loadPortfolio() {
+            const grid = document.getElementById('game-grid');
+            const future = document.getElementById('future-games');
+            if (!grid) return;
+
+            try {
+                const resp = await fetch('/games.json');
+                const games = await resp.json();
+
+                if (!games.length) {
+                    grid.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">No games published yet.</p>';
+                    return;
+                }
+
+                games.forEach((game, i) => {
+                    const card = document.createElement('div');
+                    card.className = 'game-card';
+
+                    const badgeLabel = i === 0 ? 'First Title' : game.status === 'released' ? 'Released' : 'Coming Soon';
+                    const badge = `<div class="badge">${badgeLabel}</div>`;
+
+                    const tagsHTML = game.tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+                    const featuresHTML = game.features
+                        ? `<div style="margin-top:1rem; font-size:0.75rem; color: var(--text-secondary);">
+                             ${game.features.slice(0,4).map(f => `✦ ${f}`).join('<br>')}
+                           </div>`
+                        : '';
+
+                    card.innerHTML = `
+                        ${badge}
+                        <h3>${game.title.toUpperCase()}</h3>
+                        <div class="subtitle">${game.genre} — ${game.tech.join(' / ')}</div>
+                        <p>${game.description}</p>
+                        <div class="tags">${tagsHTML}</div>
+                        ${game.url ? `<a href="${game.url}" class="btn btn-primary">▶ Play Now</a>` : ''}
+                        <a href="https://github.com/mbgulden/${game.id}" target="_blank" rel="noopener" class="btn">View Source</a>
+                        ${featuresHTML}
+                    `;
+                    grid.appendChild(card);
+                });
+
+                // Hide "Coming Soon" if we have more than one game
+                if (games.length > 1) {
+                    future.style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Failed to load game portfolio:', err);
+                // Fallback: show static card
+                grid.innerHTML = `
+                    <div class="game-card">
+                        <div class="badge">First Title</div>
+                        <h3>DARIUS STAR: CYBER COELACANTH</h3>
+                        <div class="subtitle">Shoot 'em Up / Arcade — HTML5 Canvas / Vanilla JS</div>
+                        <p>Pilot the <em>Darius Star</em> through neon-drenched cyberpunk oceans. Battle biomechanical monstrosities, upgrade your weapons, and survive wave after wave.</p>
+                        <div class="tags">
+                            <span class="tag">arcade</span><span class="tag">shooter</span><span class="tag">pixel-art</span><span class="tag">retro</span>
+                        </div>
+                        <a href="#play" class="btn btn-primary">▶ Play Now</a>
+                        <a href="https://github.com/mbgulden/darius-star" target="_blank" rel="noopener" class="btn">View Source</a>
+                    </div>`;
+            }
+        })();
+    </script>
 </body>
 </html>

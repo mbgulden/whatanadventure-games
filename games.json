@@ -1,0 +1,25 @@
+[
+  {
+    "id": "darius-star",
+    "title": "Darius Star: Cyber Coelacanth",
+    "genre": "Shoot 'em Up / Arcade",
+    "release_date": "2026-06-08",
+    "status": "released",
+    "url": "/darius-star/",
+    "external_url": null,
+    "description": "A retro arcade shoot-em-up. Battle through waves of enemies, collect power-ups, and face the fearsome Cyber Coelacanth boss in this pixel-art space fighter.",
+    "cover_image": "/darius-star/cover.png",
+    "screenshots": [],
+    "tags": ["arcade", "shooter", "pixel-art", "retro", "2D", "boss-fight"],
+    "tech": ["HTML5 Canvas", "Vanilla JS", "Web Audio API"],
+    "features": [
+      "4 weapon levels with visual upgrades",
+      "Power-up system (spread shot, rapid fire, shield boost)",
+      "Parallax scrolling starfield",
+      "Dynamic enemy wave spawning",
+      "Epic boss battle with 3 attack phases",
+      "CRT scanline overlay",
+      "Touch controls for mobile"
+    ]
+  }
+]
