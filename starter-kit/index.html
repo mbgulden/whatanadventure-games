@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Game — What An Adventure Games</title>
+    <meta name="description" content="A 2D HTML5 Canvas game built with the What An Adventure Games starter kit.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #050510;
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        h1 {
+            margin: 5px 0;
+            font-size: 20px;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            letter-spacing: 2px;
+        }
+        .studio-credit {
+            font-size: 10px;
+            color: #ff0055;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+        canvas {
+            display: block;
+            background: #000;
+            border: 4px solid #3a3a5a;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            image-rendering: pixelated;
+            max-width: 100vw;
+            max-height: calc(100vh - 120px);
+        }
+    </style>
+</head>
+<body>
+    <h1>YOUR GAME TITLE</h1>
+    <div class="studio-credit">A What An Adventure Game</div>
+    <canvas id="gameCanvas" width="800" height="450"></canvas>
+
+    <script src="collision.js"></script>
+    <script src="game-loop.js"></script>
+    <script src="sprite.js"></script>
+    <script src="audio.js"></script>
+    <script src="parallax.js"></script>
+    <script src="powerup.js"></script>
+    <script src="particles.js"></script>
+    <script>
+        // ============================================
+        // YOUR GAME CODE HERE
+        // ============================================
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Initialize systems
+        const audio = createAudioSystem();
+        const bg = createParallax([
+            { color: '#050510', speed: 0 },
+            { stars: true, density: 80, speed: 0.2 },
+            { stars: true, density: 30, speed: 0.6 }
+        ]);
+        const particles = createParticleSystem();
+
+        // Player state
+        const player = {
+            x: 80, y: canvas.height / 2,
+            width: 24, height: 24,
+            speed: 200,
+            weaponLevel: 1,
+            shield: 100,
+            health: 3, maxHealth: 3
+        };
+
+        // Create power-up system
+        const powerups = createPowerUpSystem(player, canvas);
+
+        // Input
+        const keys = {};
+        window.addEventListener('keydown', e => { keys[e.key] = true; });
+        window.addEventListener('keyup', e => { keys[e.key] = false; });
+
+        // Game state
+        let score = 0;
+        let gameOver = false;
+
+        // Click to start audio context
+        canvas.addEventListener('click', () => audio.resume());
+
+        // ===== UPDATE =====
+        function update(dt) {
+            if (gameOver) return;
+
+            // Player movement
+            if (keys['w'] || keys['ArrowUp']) player.y -= player.speed * dt;
+            if (keys['s'] || keys['ArrowDown']) player.y += player.speed * dt;
+            if (keys['a'] || keys['ArrowLeft']) player.x -= player.speed * dt;
+            if (keys['d'] || keys['ArrowRight']) player.x += player.speed * dt;
+
+            // Clamp to canvas
+            player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+            player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
+
+            // Update systems
+            bg.update(dt, 0.5);
+            powerups.update(dt);
+            particles.update(dt);
+
+            // Fire weapon
+            if (keys[' '] || keys['j']) {
+                // TODO: implement firing
+            }
+        }
+
+        // ===== RENDER =====
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            bg.draw(ctx, canvas.width, canvas.height);
+
+            // Draw player
+            ctx.fillStyle = '#00ffff';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+
+            // Draw systems
+            powerups.draw(ctx);
+            particles.draw(ctx);
+
+            // HUD
+            ctx.fillStyle = '#00ff00';
+            ctx.font = '12px monospace';
+            ctx.fillText(`SHIELD: ${player.shield}%`, 10, 20);
+            ctx.fillStyle = '#ffff00';
+            ctx.fillText(`WEAPON: LVL ${player.weaponLevel}`, 10, 36);
+            ctx.fillStyle = '#00ffff';
+            ctx.fillText(`SCORE: ${score}`, canvas.width - 120, 20);
+
+            if (gameOver) {
+                ctx.fillStyle = 'rgba(15, 5, 5, 0.85)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ff0033';
+                ctx.font = 'bold 36px monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 20);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '16px monospace';
+                ctx.fillText('SCORE: ' + score, canvas.width / 2, canvas.height / 2 + 20);
+                ctx.font = '12px monospace';
+                ctx.fillStyle = '#8a8a9f';
+                ctx.fillText('Click or press SPACE to retry', canvas.width / 2, canvas.height / 2 + 50);
+                ctx.textAlign = 'start';
+            }
+        }
+
+        // ===== GAME LOOP =====
+        const loop = createGameLoop({ update, render, canvas });
+        loop.start();
+
+        // Reset on click/space when game over
+        canvas.addEventListener('click', () => {
+            if (gameOver) resetGame();
+        });
+        window.addEventListener('keydown', e => {
+            if (e.key === ' ' && gameOver) resetGame();
+            if (e.key === 'p' || e.key === 'P') loop.togglePause();
+        });
+
+        function resetGame() {
+            score = 0;
+            gameOver = false;
+            player.y = canvas.height / 2;
+            player.x = 80;
+            player.shield = 100;
+            player.weaponLevel = 1;
+            player.health = player.maxHealth;
+            powerups.clear();
+            particles.clear();
+            bg.reset();
+        }
+    </script>
+</body>
+</html>
