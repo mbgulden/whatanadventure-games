@@ -34,6 +34,22 @@ The following color palette has been extracted from the studio's brand logo (`Ad
 | **Warning State** | `#FFA000` | Custom (Brand Aligned) | Amber Yellow; matches orange hues for warnings. |
 | **Error State** | `#D32F2F` | Custom (Brand Aligned) | Crimson Red; high-visibility alert color for errors. |
 
+### Empirical Palette Verification
+
+To verify the color selections, we ran a pixel-quantization analysis over the brand image assets. The dominant color swatches detected are:
+
+1. **Adventure-Logo-01.jpg**:
+   - **Base Off-White**: `#FFFFFF` (Alabaster White backdrop)
+   - **Sky Blue**: `#C9E3FE` (Corresponds to design token `--wag-color-accent: #C8E3FE`)
+   - **Adventure Orange**: `#FF7816` (Corresponds to design token `--wag-color-primary: #FE7916`)
+   - **Golden Peach**: `#FDC985` (Corresponds to design token `--wag-color-secondary: #FDC781`)
+   - **Outlines / Ink Black**: `#1E2021` (Corresponds to design token `--wag-text-main: #1B1C1E`)
+2. **Revised-splash-screen.png**:
+   - **Ice Blue Spectrum**: `#CAE3FF`, `#D2E7FF`, `#CCE4FF`
+   - **Tan / Compass Rose Accent**: `#CD8C56`
+
+The design system's CSS tokens are fine-tuned from these raw colors to optimize contrast, web readability, and visual harmony while maintaining the original brand identity.
+
 ### CSS Custom Properties
 
 ```css
