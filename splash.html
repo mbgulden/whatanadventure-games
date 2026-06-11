@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What An Adventure Games — Loading...</title>
+  <meta name="description" content="What An Adventure Games - Journey Before Destination">
+  
+  <!-- Typography System (Google Fonts) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Lilita+One&family=Nunito:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================
+       CSS DESIGN TOKEN SYSTEM (from Moodboard)
+       ========================================== */
+    :root {
+      /* Brand Colors */
+      --wag-color-primary: #FE7916;          /* Vibrant Adventure Orange */
+      --wag-color-primary-dark: #E26810;     /* Darkened primary for hover/active states */
+      --wag-color-secondary: #FDC781;        /* Golden Peach / Warm Amber Accent */
+      --wag-color-accent: #C8E3FE;           /* Airy Ice Blue */
+      
+      /* Background Tones */
+      --wag-bg-main: #FDFBF7;                /* Alabaster Off-White */
+      --wag-bg-cream: #FAF5EB;               /* Warm Map Cream */
+      --wag-bg-dark: #1B1C1E;                /* Ink Black (Dark initial state) */
+      
+      /* Text Colors */
+      --wag-text-main: #1B1C1E;              /* Ink Black */
+      --wag-text-secondary: #3B4141;         /* Deep Charcoal */
+      
+      /* Layout & Shadows */
+      --wag-radius-card: 16px;
+      --wag-radius-btn: 12px;
+      --wag-shadow-soft: 0 4px 20px -2px rgba(74, 62, 61, 0.06), 0 2px 8px 0 rgba(74, 62, 61, 0.04);
+      --wag-shadow-hover: 0 12px 30px -4px rgba(74, 62, 61, 0.12), 0 4px 12px 0 rgba(74, 62, 61, 0.06);
+      --wag-shadow-button: 0 4px 12px rgba(254, 121, 22, 0.2);
+      --wag-shadow-button-hover: 0 8px 20px rgba(254, 121, 22, 0.35);
+      
+      /* Fonts */
+      --wag-font-display: 'Lilita One', 'Fredoka', cursive, sans-serif;
+      --wag-font-header: 'Fredoka', sans-serif;
+      --wag-font-body: 'Nunito', sans-serif;
+      
+      /* Font Sizes */
+      --wag-fs-h1: 3.5rem;
+      --wag-fs-h2: 2.25rem;
+      --wag-fs-body: 1rem;
+    }
+
+    /* Reset & Base Styling */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--wag-bg-dark);
+      color: var(--wag-text-main);
+      font-family: var(--wag-font-body);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Splash Screen Container */
+    .wag-splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: var(--wag-bg-dark);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: all;
+      /* Background transitions to light brand colors */
+      animation: backgroundTransition 1.5s cubic-bezier(0.25, 1, 0.5, 1) 0.6s forwards;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M0 50 Q 25 35, 50 50 T 100 50' fill='none' stroke='%231B1C1E' stroke-width='0.5' stroke-opacity='0.02'/%3E%3Cpath d='M0 70 Q 30 85, 60 70 T 100 70' fill='none' stroke='%231B1C1E' stroke-width='0.5' stroke-opacity='0.02'/%3E%3C/svg%3E");
+    }
+
+    @keyframes backgroundTransition {
+      0% { background-color: var(--wag-bg-dark); }
+      100% { background-color: var(--wag-bg-cream); }
+    }
+
+    /* Phase 1: Compass needle spin & scale (0.0s - 1.2s) */
+    .wag-splash__compass {
+      position: absolute;
+      width: 130px;
+      height: 130px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      opacity: 0;
+      transform: scale(0.6) rotate(-180deg);
+      animation: compassIntro 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards,
+                 compassSettle 1.4s cubic-bezier(0.25, 1, 0.5, 1) 1.2s forwards;
+      will-change: transform, opacity;
+    }
+
+    @keyframes compassIntro {
+      0% {
+        transform: scale(0.6) rotate(-180deg);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    @keyframes compassSettle {
+      0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+      100% {
+        opacity: 0.12;
+        transform: scale(0.75) translateY(-160px);
+      }
+    }
+
+    /* Logo Box (Reveals in Phase 2) */
+    .wag-splash__logo-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      z-index: 20;
+      opacity: 0;
+      transform: scale(0.8) rotate(-4deg);
+      animation: logoReveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s forwards,
+                 logoGlow 2.5s ease-in-out 2.4s infinite alternate;
+      will-change: transform, opacity;
+    }
+
+    @keyframes logoReveal {
+      0% {
+        opacity: 0;
+        transform: scale(0.8) rotate(-4deg);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+    }
+
+    @keyframes logoGlow {
+      0% {
+        filter: drop-shadow(0 4px 10px rgba(254, 121, 22, 0.08));
+      }
+      100% {
+        filter: drop-shadow(0 12px 30px rgba(254, 121, 22, 0.28)) drop-shadow(0 0 15px rgba(253, 199, 129, 0.15));
+      }
+    }
+
+    /* Organic Image Mask Wrapper */
+    .wag-splash__img-wrapper {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      margin-bottom: 1.5rem;
+      border: 4px solid var(--wag-color-primary);
+      background-color: #FFFFFF;
+      box-shadow: var(--wag-shadow-soft);
+      overflow: hidden;
+      /* Playful organic crop shape from design guidelines Section 9 */
+      border-radius: 60% 40% 60% 40% / 40% 60% 40% 60%;
+      animation: imgMaskBounce 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s forwards,
+                 imgOrganicWiggle 6s ease-in-out 2.7s infinite alternate;
+      will-change: transform, border-radius;
+    }
+
+    @keyframes imgMaskBounce {
+      0% { transform: scale(0) rotate(-30deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
+    @keyframes imgOrganicWiggle {
+      0% {
+        border-radius: 60% 40% 60% 40% / 40% 60% 40% 60%;
+      }
+      100% {
+        border-radius: 40% 60% 40% 60% / 60% 40% 60% 40%;
+      }
+    }
+
+    .wag-splash__img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      /* Subtle warm amber overlay to unify color grading */
+      filter: contrast(1.02) brightness(0.98);
+    }
+
+    /* Phase 2: Letter-by-letter studio title slide-out */
+    .wag-splash__title {
+      font-family: var(--wag-font-display);
+      font-size: var(--wag-fs-h2);
+      color: var(--wag-text-main);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.15rem;
+      overflow: hidden;
+      margin-bottom: 0.2rem;
+    }
+
+    .wag-splash__title span {
+      display: inline-block;
+      transform: translateY(110%);
+      opacity: 0;
+      animation: letterSlideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      will-change: transform, opacity;
+    }
+
+    @keyframes letterSlideUp {
+      0% {
+        transform: translateY(110%);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Phase 3: "GAMES" Spring Reveal */
+    .wag-splash__games {
+      font-family: var(--wag-font-display);
+      font-size: var(--wag-fs-h1);
+      color: var(--wag-color-primary);
+      text-transform: uppercase;
+      letter-spacing: 7px;
+      line-height: 1;
+      margin-top: -0.1rem;
+      opacity: 0;
+      transform: translateY(35px) scale(0.85);
+      animation: gamesSpring 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 2.2s forwards;
+      text-shadow: 3px 3px 0px var(--wag-color-secondary);
+      will-change: transform, opacity;
+    }
+
+    @keyframes gamesSpring {
+      0% {
+        opacity: 0;
+        transform: translateY(35px) scale(0.85);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Tagline Reveal: "Journey Before Destination" */
+    .wag-splash__tagline {
+      font-family: var(--wag-font-header);
+      font-size: var(--wag-fs-body);
+      color: var(--wag-text-secondary);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 1.2rem;
+      opacity: 0;
+      transform: translateY(15px);
+      animation: taglineReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.8s forwards;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      will-change: transform, opacity;
+    }
+
+    .wag-splash__tagline::before,
+    .wag-splash__tagline::after {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 2px;
+      background: var(--wag-color-primary);
+    }
+
+    @keyframes taglineReveal {
+      0% {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* CSS Sparkle/Particle Effects */
+    .wag-splash__sparkle {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background-color: var(--wag-color-secondary);
+      /* Hand-drawn pixel star clip-path */
+      clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+      opacity: 0;
+      transform: scale(0);
+      z-index: 15;
+      will-change: transform, opacity;
+    }
+
+    /* 6 Staggered Sparkle Placements */
+    .sparkle-1 { top: 32%; left: 34%; animation: sparkleFloat1 2.0s cubic-bezier(0.175, 0.885, 0.32, 1.4) 1.2s forwards; }
+    .sparkle-2 { top: 28%; right: 32%; animation: sparkleFloat2 2.2s cubic-bezier(0.175, 0.885, 0.32, 1.4) 1.4s forwards; }
+    .sparkle-3 { bottom: 36%; left: 30%; animation: sparkleFloat3 2.1s cubic-bezier(0.175, 0.885, 0.32, 1.4) 1.3s forwards; }
+    .sparkle-4 { bottom: 32%; right: 33%; animation: sparkleFloat4 2.3s cubic-bezier(0.175, 0.885, 0.32, 1.4) 1.5s forwards; }
+    .sparkle-5 { top: 48%; left: 24%; animation: sparkleFloat5 2.4s cubic-bezier(0.175, 0.885, 0.32, 1.4) 1.6s forwards; }
+    .sparkle-6 { top: 46%; right: 22%; animation: sparkleFloat6 2.2s cubic-bezier(0.175, 0.885, 0.32, 1.4) 1.7s forwards; }
+
+    @keyframes sparkleFloat1 {
+      0% { transform: scale(0) translate(0, 0) rotate(0deg); opacity: 0; }
+      20% { opacity: 1; transform: scale(1) translate(-25px, -25px) rotate(45deg); }
+      100% { transform: scale(0.5) translate(-50px, -55px) rotate(90deg); opacity: 0; }
+    }
+    @keyframes sparkleFloat2 {
+      0% { transform: scale(0) translate(0, 0) rotate(0deg); opacity: 0; }
+      20% { opacity: 1; transform: scale(1.2) translate(30px, -30px) rotate(-35deg); }
+      100% { transform: scale(0.4) translate(60px, -60px) rotate(-90deg); opacity: 0; }
+    }
+    @keyframes sparkleFloat3 {
+      0% { transform: scale(0) translate(0, 0) rotate(0deg); opacity: 0; }
+      20% { opacity: 1; transform: scale(0.9) translate(-35px, 20px) rotate(20deg); }
+      100% { transform: scale(0.3) translate(-70px, 40px) rotate(75deg); opacity: 0; }
+    }
+    @keyframes sparkleFloat4 {
+      0% { transform: scale(0) translate(0, 0) rotate(0deg); opacity: 0; }
+      20% { opacity: 1; transform: scale(1.1) translate(25px, 25px) rotate(-20deg); }
+      100% { transform: scale(0.4) translate(55px, 50px) rotate(-50deg); opacity: 0; }
+    }
+    @keyframes sparkleFloat5 {
+      0% { transform: scale(0) translate(0, 0) rotate(0deg); opacity: 0; }
+      20% { opacity: 0.8; transform: scale(1) translate(-40px, -5px) rotate(30deg); }
+      100% { transform: scale(0.3) translate(-80px, -10px) rotate(120deg); opacity: 0; }
+    }
+    @keyframes sparkleFloat6 {
+      0% { transform: scale(0) translate(0, 0) rotate(0deg); opacity: 0; }
+      20% { opacity: 0.9; transform: scale(1) translate(40px, 5px) rotate(-60deg); }
+      100% { transform: scale(0.3) translate(80px, 10px) rotate(-180deg); opacity: 0; }
+    }
+
+    /* Enter Button */
+    .wag-splash__enter-btn {
+      position: absolute;
+      bottom: 8%;
+      font-family: var(--wag-font-display);
+      font-size: 1.1rem;
+      padding: 0.8rem 2.5rem;
+      border-radius: var(--wag-radius-btn);
+      border: 2px solid transparent;
+      cursor: pointer;
+      background-color: var(--wag-color-primary);
+      color: var(--wag-text-main); /* Ink Black for 6.7:1 AA accessibility */
+      box-shadow: var(--wag-shadow-button);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  box-shadow 0.2s,
+                  background-color 0.2s;
+      animation: enterBtnReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) 2.8s forwards;
+      text-decoration: none;
+      z-index: 30;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      will-change: transform, opacity;
+    }
+
+    .wag-splash__enter-btn:hover {
+      background-color: var(--wag-color-primary-dark);
+      transform: translateY(-3px);
+      box-shadow: var(--wag-shadow-button-hover);
+    }
+
+    .wag-splash__enter-btn:active {
+      transform: translateY(-1px);
+    }
+
+    .wag-splash__enter-btn:focus-visible {
+      outline: 3px solid var(--wag-color-primary) !important;
+      outline-offset: 3px !important;
+    }
+
+    @keyframes enterBtnReveal {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Auto-redirect visual progress bar */
+    .wag-splash__progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 6px;
+      background-color: var(--wag-color-primary);
+      width: 100%;
+      transform-origin: left;
+      animation: progressCountdown 5.0s linear forwards;
+    }
+
+    @keyframes progressCountdown {
+      0% { transform: scaleX(0); }
+      100% { transform: scaleX(1); }
+    }
+
+    /* Fade-out exit screen style triggered via JS */
+    .wag-splash--exit {
+      animation: exitAnimation 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    }
+
+    @keyframes exitAnimation {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.03); }
+    }
+
+    /* Responsive scaling rules */
+    @media (max-width: 768px) {
+      :root {
+        --wag-fs-h1: 2.8rem;
+        --wag-fs-h2: 1.8rem;
+        --wag-fs-body: 0.9rem;
+      }
+      .wag-splash__img-wrapper {
+        width: 170px;
+        height: 170px;
+      }
+      .wag-splash__compass {
+        width: 100px;
+        height: 100px;
+      }
+      @keyframes compassSettle {
+        0% { opacity: 1; transform: scale(1) translateY(0); }
+        100% { opacity: 0.12; transform: scale(0.75) translateY(-130px); }
+      }
+    }
+
+    @media (max-width: 480px) {
+      :root {
+        --wag-fs-h1: 2.25rem;
+        --wag-fs-h2: 1.4rem;
+        --wag-fs-body: 0.8rem;
+      }
+      .wag-splash__img-wrapper {
+        width: 140px;
+        height: 140px;
+        border-width: 3px;
+      }
+      .wag-splash__tagline {
+        letter-spacing: 2px;
+        font-size: 0.75rem;
+      }
+      .wag-splash__tagline::before,
+      .wag-splash__tagline::after {
+        width: 16px;
+      }
+      .wag-splash__enter-btn {
+        padding: 0.7rem 2rem;
+        font-size: 0.95rem;
+        bottom: 10%;
+      }
+    }
+
+    /* Accessibility overrides for reduced motion preferences */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-delay: -1ms !important;
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        background-attachment: initial !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0s !important;
+        transition-delay: 0s !important;
+      }
+      .wag-splash {
+        background-color: var(--wag-bg-cream);
+      }
+      .wag-splash__compass {
+        opacity: 0;
+      }
+      .wag-splash__logo-box,
+      .wag-splash__enter-btn {
+        opacity: 1;
+        transform: none;
+      }
+      .wag-splash__title span {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wag-splash" id="splash-screen">
+    
+    <!-- CSS Sparkle Particles -->
+    <div class="wag-splash__sparkle sparkle-1"></div>
+    <div class="wag-splash__sparkle sparkle-2"></div>
+    <div class="wag-splash__sparkle sparkle-3"></div>
+    <div class="wag-splash__sparkle sparkle-4"></div>
+    <div class="wag-splash__sparkle sparkle-5"></div>
+    <div class="wag-splash__sparkle sparkle-6"></div>
+
+    <!-- Phase 1: Compass Rose/Needle -->
+    <div class="wag-splash__compass">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+        <!-- Compass Outer Circle -->
+        <circle cx="50" cy="50" r="42" fill="none" stroke="#FE7916" stroke-width="3.5" stroke-dasharray="2,4" />
+        <!-- Dial Ticks -->
+        <line x1="50" y1="8" x2="50" y2="14" stroke="#FE7916" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="50" y1="92" x2="50" y2="86" stroke="#FE7916" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="8" y1="50" x2="14" y2="50" stroke="#FE7916" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="92" y1="50" x2="86" y2="50" stroke="#FE7916" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Compass Needle (North-South) -->
+        <polygon points="50,16 57,50 50,45" fill="#FE7916" stroke="#FE7916" stroke-width="1" />
+        <polygon points="50,84 57,50 50,45" fill="#FDC781" stroke="#FDC781" stroke-width="1" />
+        <polygon points="50,16 43,50 50,45" fill="#E26810" stroke="#FE7916" stroke-width="1" />
+        <polygon points="50,84 43,50 50,45" fill="#ECAE5C" stroke="#FDC781" stroke-width="1" />
+        <!-- Center Pivot Pin -->
+        <circle cx="50" cy="50" r="4" fill="#1B1C1E" />
+      </svg>
+    </div>
+
+    <!-- Phase 2: Logo and Text Reveal -->
+    <div class="wag-splash__logo-box">
+      <!-- Main Logo Image wrapped with BEM and Organic Styling -->
+      <div class="wag-splash__img-wrapper">
+        <img class="wag-splash__img" src="assets/Adventure-Logo-01.jpg" alt="What An Adventure Games Logo">
+      </div>
+
+      <!-- Studio Name "WHAT AN ADVENTURE" with letter-by-letter stagger -->
+      <div class="wag-splash__title" id="studio-title-box">
+        <span>W</span><span>H</span><span>A</span><span>T</span>&nbsp;
+        <span>A</span><span>N</span>&nbsp;
+        <span>A</span><span>D</span><span>V</span><span>E</span><span>N</span><span>T</span><span>U</span><span>R</span><span>E</span>
+      </div>
+
+      <!-- Phase 3: "GAMES" Spring Transition -->
+      <div class="wag-splash__games">GAMES</div>
+
+      <!-- Tagline reveal -->
+      <div class="wag-splash__tagline">Journey Before Destination</div>
+    </div>
+
+    <!-- Enter Studio Button -->
+    <a href="index.html" class="wag-splash__enter-btn" id="enter-btn">Enter Studio</a>
+
+    <!-- Countdown Timer Visual Indicator -->
+    <div class="wag-splash__progress"></div>
+
+  </div>
+
+  <script>
+    // Dynamically apply animation delay to spans for letter-by-letter reveal
+    const spans = document.querySelectorAll('.wag-splash__title span');
+    spans.forEach((span, i) => {
+      // Starts at 1.2s and increments by 0.04s per character
+      span.style.animationDelay = `${1.2 + i * 0.04}s`;
+    });
+
+    const enterBtn = document.getElementById('enter-btn');
+    const splashScreen = document.getElementById('splash-screen');
+
+    // Trigger smooth fade-out and navigation to main index.html
+    function navigateToStorefront(e) {
+      if (e) e.preventDefault();
+      splashScreen.classList.add('wag-splash--exit');
+      
+      // Allow fade-out animation to complete (0.6s) before redirecting
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 550);
+    }
+
+    enterBtn.addEventListener('click', navigateToStorefront);
+
+    // Auto-redirect after 5.0 seconds (gives full 4.5s splash animation to play + buffer)
+    const redirectTimeout = setTimeout(() => {
+      navigateToStorefront();
+    }, 5000);
+  </script>
+</body>
+</html>
